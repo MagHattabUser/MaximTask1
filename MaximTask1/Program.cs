@@ -35,7 +35,11 @@ else
 
     Console.WriteLine(inputString);
 
-
+    foreach (var item in inputString.Distinct().ToArray())
+    {
+        var count = inputString.Count(symbol => symbol == item);
+        Console.WriteLine("Количество символов {0} = {1}", item, count);
+    }
 }
 
 static string Reverse(string s)
