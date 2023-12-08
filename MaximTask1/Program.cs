@@ -54,7 +54,11 @@ else
     {
         SortClass.TreeSort(chars);
     }
+
     Console.WriteLine(new string(chars));
+    Console.WriteLine(DeleteSymbol(inputString, int.Parse(GetRandomNumber(inputString.Length - 1).Result)));
+
+
 }
 
 static string Reverse(string s)
@@ -85,39 +89,34 @@ static string FindLargestSubstring(string inputString)
     return largestSubstring;
 }
 
-static void QuickSort(char[] array, int low, int high)
+static async Task<string> GetRandomNumber(int inputStringLenght)
 {
-    if (low < high)
+    try
     {
-        int partitionIndex = Partition(array, low, high);
-
-        QuickSort(array, low, partitionIndex - 1);
-        QuickSort(array, partitionIndex + 1, high);
-    }
-}
-
-static int Partition(char[] array, int low, int high)
-{
-    char pivot = array[high];
-    int i = low - 1;
-
-    for (int j = low; j < high; j++)
-    {
-        if (array[j] < pivot)
+        using (HttpClient client = new HttpClient())
         {
-            i++;
+            string apiUrl = "https://www.random.org/integers/?num=1&min=0&max=" + inputStringLenght.ToString() + "&col=1&base=10&format=plain&rnd=new";
+            HttpResponseMessage response = await client.GetAsync(apiUrl);
 
-            char temp = array[i];
-            array[i] = array[j];
-            array[j] = temp;
+            if (response.IsSuccessStatusCode)
+            {
+                return await response.Content.ReadAsStringAsync();
+            }
         }
     }
+    catch (Exception ex)
+    {
+        Console.WriteLine($"Error: {ex.Message}");
+    }
 
-    char temp1 = array[i + 1];
-    array[i + 1] = array[high];
-    array[high] = temp1;
+    Random random = new Random();
+    return random.Next(0, inputStringLenght).ToString();
+}
 
-    return i + 1;
+static string DeleteSymbol(string inputString, int index)
+{
+    var duplicate = inputString;
+    return duplicate.Remove(index,1);
 }
 
 class SymbolException : Exception
