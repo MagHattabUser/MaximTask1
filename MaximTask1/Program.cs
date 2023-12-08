@@ -40,6 +40,8 @@ else
         var count = inputString.Count(symbol => symbol == item);
         Console.WriteLine("Количество символов {0} = {1}", item, count);
     }
+
+    Console.WriteLine(FindLargestSubstring(inputString));
 }
 
 static string Reverse(string s)
@@ -48,6 +50,28 @@ static string Reverse(string s)
     Array.Reverse(charArray);
     return new string(charArray);
 }
+
+static string FindLargestSubstring(string inputString)
+{
+    string vowelLetters = "aeiouy";
+    string largestSubstring = "";
+    for (int i = 0; i < inputString.Length; i++)
+    {
+        for (int j = i; j < inputString.Length; j++)
+        {
+            if (vowelLetters.Contains(inputString[i]) && vowelLetters.Contains(inputString[j]))
+            {
+                string substring = inputString.Substring(i, j - i + 1);
+                if (substring.Length > largestSubstring.Length)
+                {
+                    largestSubstring = substring;
+                }
+            }
+        }
+    }
+    return largestSubstring;
+}
+
 class SymbolException : Exception
 {
     public SymbolException(string message) : base(message) { }
