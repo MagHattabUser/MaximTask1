@@ -1,4 +1,5 @@
-﻿using System.Text.RegularExpressions;
+﻿using System;
+using System.Text.RegularExpressions;
 
 string inputString;
 
@@ -42,6 +43,18 @@ else
     }
 
     Console.WriteLine(FindLargestSubstring(inputString));
+    char[] chars = inputString.ToCharArray();
+    Console.WriteLine("Выберите сортировку \n1 - QuickSort\n2 - TreeSort");
+    var answer = int.Parse(Console.ReadLine());
+    if (answer == 1)
+    {
+        SortClass.QuickSort(chars, 0, chars.Length -1);
+    }
+    else
+    {
+        SortClass.TreeSort(chars);
+    }
+    Console.WriteLine(new string(chars));
 }
 
 static string Reverse(string s)
@@ -72,7 +85,147 @@ static string FindLargestSubstring(string inputString)
     return largestSubstring;
 }
 
+static void QuickSort(char[] array, int low, int high)
+{
+    if (low < high)
+    {
+        int partitionIndex = Partition(array, low, high);
+
+        QuickSort(array, low, partitionIndex - 1);
+        QuickSort(array, partitionIndex + 1, high);
+    }
+}
+
+static int Partition(char[] array, int low, int high)
+{
+    char pivot = array[high];
+    int i = low - 1;
+
+    for (int j = low; j < high; j++)
+    {
+        if (array[j] < pivot)
+        {
+            i++;
+
+            char temp = array[i];
+            array[i] = array[j];
+            array[j] = temp;
+        }
+    }
+
+    char temp1 = array[i + 1];
+    array[i + 1] = array[high];
+    array[high] = temp1;
+
+    return i + 1;
+}
+
 class SymbolException : Exception
 {
     public SymbolException(string message) : base(message) { }
+}
+
+class TreeNode
+{
+    public char Data;
+    public List<int> Indices;
+    public TreeNode Left, Right;
+
+    public TreeNode(char item, int index)
+    {
+        Data = item;
+        Indices = new List<int> { index };
+        Left = Right = null;
+    }
+}
+
+static class SortClass
+{
+    private static int currentIndex = 0;
+    public static void QuickSort(char[] array, int low, int high)
+    {
+        if (low < high)
+        {
+            int partitionIndex = Partition(array, low, high);
+
+            QuickSort(array, low, partitionIndex - 1);
+            QuickSort(array, partitionIndex + 1, high);
+        }
+    }
+
+    private static int Partition(char[] array, int low, int high)
+    {
+        char pivotValue = array[high];
+        int i = low - 1;
+
+        for (int j = low; j < high; j++)
+        {
+            if (array[j] < pivotValue)
+            {
+                i++;
+
+                char swap = array[i];
+                array[i] = array[j];
+                array[j] = swap;
+            }
+        }
+
+        char swap1 = array[i + 1];
+        array[i + 1] = array[high];
+        array[high] = swap1;
+
+        return i + 1;
+    }
+    public static void TreeSort(char[] array)
+    {
+        TreeNode root = null;
+
+        for (int i = 0; i < array.Length; i++)
+        {
+            root = Insert(root, array[i], i);
+        }
+
+        InOrderTraversal(root, array, ref currentIndex);
+    }
+
+    
+
+    private static TreeNode Insert(TreeNode root, char key, int index)
+    {
+        if (root == null)
+        {
+            root = new TreeNode(key, index);
+            return root;
+        }
+
+        if (key == root.Data)
+        {
+            root.Indices.Add(index);
+        }
+        else if (key < root.Data)
+        {
+            root.Left = Insert(root.Left, key, index);
+        }
+        else
+        {
+            root.Right = Insert(root.Right, key, index);
+        }
+
+        return root;
+    }
+
+    private static void InOrderTraversal(TreeNode root, char[] array, ref int index)
+    {
+        if (root != null)
+        {
+            InOrderTraversal(root.Left, array, ref index);
+
+            foreach (var idx in root.Indices)
+            {
+                array[index++] = root.Data;
+            }
+
+            InOrderTraversal(root.Right, array, ref index);
+        }
+    }
 }
