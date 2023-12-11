@@ -1,125 +1,155 @@
 ﻿using System;
+using System.Runtime.CompilerServices;
 using System.Text.RegularExpressions;
 
-string inputString;
+var strOp = new StringOperation();
+strOp.RunProgramm();
 
-inputString = Console.ReadLine();
-var regex = new Regex("^[a-z]+$");
-if (!regex.IsMatch(inputString))
+
+public class StringOperation
 {
-    string errorMessage = "";
-    foreach (var item in inputString)
+    public string ProcessingString(string inputString)
     {
-        if (!regex.IsMatch(item.ToString()))
+        int length = inputString.Length;
+        if (length % 2 == 0)
         {
-            errorMessage += item;
+            string firstHalf = inputString.Substring(0, length / 2);
+            string secondHalf = inputString.Substring(length / 2);
+            firstHalf = Reverse(firstHalf);
+            secondHalf = Reverse(secondHalf);
+
+            inputString = firstHalf + secondHalf;
         }
-    }
-    throw new SymbolException("Некоректные символы - " + errorMessage);
-}
-else
-{
-    int length = inputString.Length;
-    if (length % 2 == 0)
-    {
-        string firstHalf = inputString.Substring(0, length / 2);
-        string secondHalf = inputString.Substring(length / 2);
-        firstHalf = Reverse(firstHalf);
-        secondHalf = Reverse(secondHalf);
-
-        inputString = firstHalf + secondHalf;
-    }
-    else
-    {
-        inputString = Reverse(inputString) + inputString;
-    }
-
-    Console.WriteLine(inputString);
-
-    foreach (var item in inputString.Distinct().ToArray())
-    {
-        var count = inputString.Count(symbol => symbol == item);
-        Console.WriteLine("Количество символов {0} = {1}", item, count);
-    }
-
-    Console.WriteLine(FindLargestSubstring(inputString));
-    char[] chars = inputString.ToCharArray();
-    Console.WriteLine("Выберите сортировку \n1 - QuickSort\n2 - TreeSort");
-    var answer = int.Parse(Console.ReadLine());
-    if (answer == 1)
-    {
-        SortClass.QuickSort(chars, 0, chars.Length -1);
-    }
-    else
-    {
-        SortClass.TreeSort(chars);
-    }
-
-    Console.WriteLine(new string(chars));
-    Console.WriteLine(DeleteSymbol(inputString, int.Parse(GetRandomNumber(inputString.Length - 1).Result)));
-
-
-}
-
-static string Reverse(string s)
-{
-    char[] charArray = s.ToCharArray();
-    Array.Reverse(charArray);
-    return new string(charArray);
-}
-
-static string FindLargestSubstring(string inputString)
-{
-    string vowelLetters = "aeiouy";
-    string largestSubstring = "";
-    for (int i = 0; i < inputString.Length; i++)
-    {
-        for (int j = i; j < inputString.Length; j++)
+        else
         {
-            if (vowelLetters.Contains(inputString[i]) && vowelLetters.Contains(inputString[j]))
+            inputString = Reverse(inputString) + inputString;
+        }
+        return inputString;
+    }
+
+    public bool StrngIsCorrect(string inputString)
+    {
+        var regex = new Regex("^[a-z]+$");
+        //return !regex.IsMatch(inputString);
+        if (!regex.IsMatch(inputString))
+        {
+            string errorMessage = "";
+            foreach (var item in inputString)
             {
-                string substring = inputString.Substring(i, j - i + 1);
-                if (substring.Length > largestSubstring.Length)
+                if (!regex.IsMatch(item.ToString()))
                 {
-                    largestSubstring = substring;
+                    errorMessage += item;
+                }
+            }
+            throw new SymbolException("Некоректные символы - " + errorMessage);
+        }
+        return true;
+    }
+
+    public List<string> CharsCountInStrng(string inputString)
+    {
+        var symbolCount = new List<string>();
+        foreach (var item in inputString.Distinct().ToArray())
+        {
+            var count = inputString.Count(symbol => symbol == item);
+            symbolCount.Add(item.ToString() + count.ToString());
+            Console.WriteLine("Количество символов {0} = {1}", item, count);
+        }
+        return symbolCount;
+    }
+
+    public string FindLargestSubstring(string inputString)
+    {
+        string vowelLetters = "aeiouy";
+        string largestSubstring = "";
+        for (int i = 0; i < inputString.Length; i++)
+        {
+            for (int j = i; j < inputString.Length; j++)
+            {
+                if (vowelLetters.Contains(inputString[i]) && vowelLetters.Contains(inputString[j]))
+                {
+                    string substring = inputString.Substring(i, j - i + 1);
+                    if (substring.Length > largestSubstring.Length)
+                    {
+                        largestSubstring = substring;
+                    }
                 }
             }
         }
+        return largestSubstring;
     }
-    return largestSubstring;
-}
 
-static async Task<string> GetRandomNumber(int inputStringLenght)
-{
-    try
+    public string Sort(string inputString, int answer)
     {
-        using (HttpClient client = new HttpClient())
+        char[] chars = inputString.ToCharArray();
+        if (answer == 1)
         {
-            string apiUrl = "https://www.random.org/integers/?num=1&min=0&max=" + inputStringLenght.ToString() + "&col=1&base=10&format=plain&rnd=new";
-            HttpResponseMessage response = await client.GetAsync(apiUrl);
+            SortClass.QuickSort(chars, 0, chars.Length - 1);
+        }
+        else
+        {
+            SortClass.TreeSort(chars);
+        }
+        return new string(chars);
+    }
 
-            if (response.IsSuccessStatusCode)
+    public void RunProgramm()
+    {
+        string inputString;
+
+        inputString = Console.ReadLine();
+        StrngIsCorrect(inputString);
+        inputString = ProcessingString(inputString);
+        Console.WriteLine(inputString);
+        CharsCountInStrng(inputString);
+        Console.WriteLine(FindLargestSubstring(inputString));
+
+        Console.WriteLine("Выберите сортировку \n1 - QuickSort\n2 - TreeSort");
+        var answer = int.Parse(Console.ReadLine());
+        Console.WriteLine(Sort(inputString, answer));
+
+        Console.WriteLine(DeleteSymbol(inputString, int.Parse(GetRandomNumber(inputString.Length - 1).Result)));
+
+    }
+    public string Reverse(string s)
+    {
+        char[] charArray = s.ToCharArray();
+        Array.Reverse(charArray);
+        return new string(charArray);
+    }
+
+    public async Task<string> GetRandomNumber(int inputStringLenght)
+    {
+        try
+        {
+            using (HttpClient client = new HttpClient())
             {
-                return await response.Content.ReadAsStringAsync();
+                string apiUrl = "https://www.random.org/integers/?num=1&min=0&max=" + inputStringLenght.ToString() + "&col=1&base=10&format=plain&rnd=new";
+                HttpResponseMessage response = await client.GetAsync(apiUrl);
+
+                if (response.IsSuccessStatusCode)
+                {
+                    return await response.Content.ReadAsStringAsync();
+                }
             }
         }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error: {ex.Message}");
+        }
+
+        Random random = new Random();
+        return random.Next(0, inputStringLenght).ToString();
     }
-    catch (Exception ex)
+
+    public string DeleteSymbol(string inputString, int index)
     {
-        Console.WriteLine($"Error: {ex.Message}");
+        var duplicate = inputString;
+        return duplicate.Remove(index, 1);
     }
-
-    Random random = new Random();
-    return random.Next(0, inputStringLenght).ToString();
 }
 
-static string DeleteSymbol(string inputString, int index)
-{
-    var duplicate = inputString;
-    return duplicate.Remove(index,1);
-}
-
-class SymbolException : Exception
+public class SymbolException : Exception
 {
     public SymbolException(string message) : base(message) { }
 }
